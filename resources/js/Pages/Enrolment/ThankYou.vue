@@ -8,6 +8,7 @@ import { Head, Link } from '@inertiajs/vue3';
     <div class="flex min-h-screen items-center justify-center bg-slate-100 p-6">
         <div class="max-w-xl rounded-2xl bg-white p-10 text-center shadow">
             <div class="text-6xl">🎉</div>
+            <img src="/build/assets/logo.png" alt="Alive Youth" />
             <h1 class="mt-4 text-3xl font-bold text-slate-900">Thanks for signing up!</h1>
             <p class="mt-3 text-slate-600">
                 Our team has received your submission. We will review the details and confirm once everything is approved.

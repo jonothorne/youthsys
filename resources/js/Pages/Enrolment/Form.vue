@@ -72,7 +72,7 @@ const submit = () => {
     <div class="min-h-screen bg-gradient-to-b from-slate-100 via-slate-50 to-white py-12">
         <div class="mx-auto max-w-5xl space-y-8 px-4">
             <div class="text-center">
-                <p class="text-xs font-semibold uppercase tracking-wide text-indigo-600">Alive Youth</p>
+                <img src="/build/assets/logo.png" alt="Alive Youth" />
                 <h1 class="mt-2 text-4xl font-semibold text-slate-900">Register your young person</h1>
                 <p class="mt-3 text-base text-slate-600">We use this information to keep young people safe and keep you updated.</p>
             </div>
