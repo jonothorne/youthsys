@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import * as Icons from 'lucide-vue-next';
 
@@ -16,6 +16,8 @@ const form = useForm({
     amount: 1,
     reason: 'Reward earned',
 });
+
+const promptReason = ref('Manual adjustment');
 
 const toggleSelect = (id) => {
     if (selected.value.includes(id)) {
@@ -36,6 +38,28 @@ const adjust = (amount, id = null) => {
         },
     });
 };
+
+const editBalance = (account) => {
+    const current = account.token_account?.balance ?? 0;
+    const userValue = prompt(`Set new token balance for ${account.first_name}`, current);
+    if (userValue === null || userValue === '') {
+        return;
+    }
+    const parsed = parseInt(userValue, 10);
+    if (isNaN(parsed)) {
+        alert('Please enter a valid number');
+        return;
+    }
+    const delta = parsed - current;
+    if (delta === 0) return;
+    router.post(route('admin.tokens.adjust'), {
+        young_person_ids: [account.id],
+        amount: delta,
+        reason: promptReason.value,
+    }, {
+        preserveScroll: true,
+    });
+};
 </script>
 
 <template>
@@ -52,7 +76,8 @@ const adjust = (amount, id = null) => {
                         <button class="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-600" @click="selected = []">Clear</button>
                         <button class="rounded-full bg-emerald-600 px-3 py-1 font-semibold text-white" @click="adjust(1)">+1 selected</button>
                         <button class="rounded-full bg-emerald-700 px-3 py-1 font-semibold text-white" @click="adjust(5)">+5 selected</button>
-                        <button class="rounded-full bg-rose-500 px-3 py-1 font-semibold text-white" @click="adjust(-5)">-5 selected</button>
+                        <button class="rounded-full bg-rose-400 px-3 py-1 font-semibold text-white" @click="adjust(-1)">-1 selected</button>
+                        <button class="rounded-full bg-rose-600 px-3 py-1 font-semibold text-white" @click="adjust(-5)">-5 selected</button>
                     </div>
                 </div>
                 <div class="mt-4 overflow-x-auto">
@@ -74,12 +99,15 @@ const adjust = (amount, id = null) => {
                                     <p class="font-semibold text-slate-900">{{ account.first_name }} {{ account.last_name }}</p>
                                     <p class="text-xs text-slate-500">{{ account.preferred_name }}</p>
                                 </td>
-                                <td class="px-4 py-3 text-lg font-semibold text-emerald-600">{{ account.token_account?.balance ?? 0 }}</td>
+                                <td class="px-4 py-3 text-lg font-semibold text-emerald-600">
+                                    <button class="hover:text-emerald-700" @click="editBalance(account)">{{ account.token_account?.balance ?? 0 }}</button>
+                                </td>
                                 <td class="px-4 py-3 text-right">
                                     <div class="space-x-2">
                                         <button class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white" @click="adjust(1, account.id)">+1</button>
                                         <button class="rounded-full bg-emerald-700 px-3 py-1 text-xs font-semibold text-white" @click="adjust(5, account.id)">+5</button>
-                                        <button class="rounded-full bg-rose-500 px-3 py-1 text-xs font-semibold text-white" @click="adjust(-5, account.id)">-5</button>
+                                        <button class="rounded-full bg-rose-400 px-3 py-1 text-xs font-semibold text-white" @click="adjust(-1, account.id)">-1</button>
+                                        <button class="rounded-full bg-rose-600 px-3 py-1 text-xs font-semibold text-white" @click="adjust(-5, account.id)">-5</button>
                                     </div>
                                 </td>
                             </tr>

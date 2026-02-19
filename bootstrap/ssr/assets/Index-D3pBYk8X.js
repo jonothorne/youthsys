@@ -1,7 +1,7 @@
 import { ref, withCtx, unref, createVNode, openBlock, createBlock, Fragment, renderList, toDisplayString, createCommentVNode, withDirectives, vModelText, useSSRContext } from "vue";
 import { ssrRenderComponent, ssrRenderList, ssrIncludeBooleanAttr, ssrInterpolate, ssrRenderClass, ssrRenderAttr } from "vue/server-renderer";
 import { _ as _sfc_main$1 } from "./AuthenticatedLayout-7_VVwp8m.js";
-import { useForm, Head } from "@inertiajs/vue3";
+import { useForm, Head, router } from "@inertiajs/vue3";
 import { _ as _export_sfc } from "./_plugin-vue_export-helper-1tPrXgE0.js";
 import "lucide-vue-next";
 import "clsx";
@@ -20,6 +20,7 @@ const _sfc_main = {
       amount: 1,
       reason: "Reward earned"
     });
+    const promptReason = ref("Manual adjustment");
     const toggleSelect = (id) => {
       if (selected.value.includes(id)) {
         selected.value = selected.value.filter((item) => item !== id);
@@ -38,26 +39,47 @@ const _sfc_main = {
         }
       });
     };
+    const editBalance = (account) => {
+      const current = account.token_account?.balance ?? 0;
+      const userValue = prompt(`Set new token balance for ${account.first_name}`, current);
+      if (userValue === null || userValue === "") {
+        return;
+      }
+      const parsed = parseInt(userValue, 10);
+      if (isNaN(parsed)) {
+        alert("Please enter a valid number");
+        return;
+      }
+      const delta = parsed - current;
+      if (delta === 0) return;
+      router.post(route("admin.tokens.adjust"), {
+        young_person_ids: [account.id],
+        amount: delta,
+        reason: promptReason.value
+      }, {
+        preserveScroll: true
+      });
+    };
     return (_ctx, _push, _parent, _attrs) => {
       _push(ssrRenderComponent(_sfc_main$1, _attrs, {
         default: withCtx((_, _push2, _parent2, _scopeId) => {
           if (_push2) {
             _push2(ssrRenderComponent(unref(Head), { title: "Tokens" }, null, _parent2, _scopeId));
-            _push2(`<div class="grid gap-6 lg:grid-cols-3" data-v-07bb7661${_scopeId}><section class="panel p-6 lg:col-span-2" data-v-07bb7661${_scopeId}><div class="flex flex-wrap items-center justify-between gap-3" data-v-07bb7661${_scopeId}><div data-v-07bb7661${_scopeId}><p class="text-sm font-semibold text-slate-900" data-v-07bb7661${_scopeId}>Token balances</p><p class="text-xs text-slate-500" data-v-07bb7661${_scopeId}>Select multiple and apply actions</p></div><div class="flex flex-wrap items-center gap-2 text-xs" data-v-07bb7661${_scopeId}><button class="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-600" data-v-07bb7661${_scopeId}>Clear</button><button class="rounded-full bg-emerald-600 px-3 py-1 font-semibold text-white" data-v-07bb7661${_scopeId}>+1 selected</button><button class="rounded-full bg-emerald-700 px-3 py-1 font-semibold text-white" data-v-07bb7661${_scopeId}>+5 selected</button><button class="rounded-full bg-rose-500 px-3 py-1 font-semibold text-white" data-v-07bb7661${_scopeId}>-5 selected</button></div></div><div class="mt-4 overflow-x-auto" data-v-07bb7661${_scopeId}><table class="min-w-full divide-y divide-border text-sm" data-v-07bb7661${_scopeId}><thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500" data-v-07bb7661${_scopeId}><tr data-v-07bb7661${_scopeId}><th class="px-4 py-3" data-v-07bb7661${_scopeId}></th><th class="px-4 py-3" data-v-07bb7661${_scopeId}>Name</th><th class="px-4 py-3" data-v-07bb7661${_scopeId}>Balance</th><th class="px-4 py-3 text-right" data-v-07bb7661${_scopeId}>Actions</th></tr></thead><tbody class="divide-y divide-slate-100 bg-white" data-v-07bb7661${_scopeId}><!--[-->`);
+            _push2(`<div class="grid gap-6 lg:grid-cols-3" data-v-52dd9b0b${_scopeId}><section class="panel p-6 lg:col-span-2" data-v-52dd9b0b${_scopeId}><div class="flex flex-wrap items-center justify-between gap-3" data-v-52dd9b0b${_scopeId}><div data-v-52dd9b0b${_scopeId}><p class="text-sm font-semibold text-slate-900" data-v-52dd9b0b${_scopeId}>Token balances</p><p class="text-xs text-slate-500" data-v-52dd9b0b${_scopeId}>Select multiple and apply actions</p></div><div class="flex flex-wrap items-center gap-2 text-xs" data-v-52dd9b0b${_scopeId}><button class="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-600" data-v-52dd9b0b${_scopeId}>Clear</button><button class="rounded-full bg-emerald-600 px-3 py-1 font-semibold text-white" data-v-52dd9b0b${_scopeId}>+1 selected</button><button class="rounded-full bg-emerald-700 px-3 py-1 font-semibold text-white" data-v-52dd9b0b${_scopeId}>+5 selected</button><button class="rounded-full bg-rose-400 px-3 py-1 font-semibold text-white" data-v-52dd9b0b${_scopeId}>-1 selected</button><button class="rounded-full bg-rose-600 px-3 py-1 font-semibold text-white" data-v-52dd9b0b${_scopeId}>-5 selected</button></div></div><div class="mt-4 overflow-x-auto" data-v-52dd9b0b${_scopeId}><table class="min-w-full divide-y divide-border text-sm" data-v-52dd9b0b${_scopeId}><thead class="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500" data-v-52dd9b0b${_scopeId}><tr data-v-52dd9b0b${_scopeId}><th class="px-4 py-3" data-v-52dd9b0b${_scopeId}></th><th class="px-4 py-3" data-v-52dd9b0b${_scopeId}>Name</th><th class="px-4 py-3" data-v-52dd9b0b${_scopeId}>Balance</th><th class="px-4 py-3 text-right" data-v-52dd9b0b${_scopeId}>Actions</th></tr></thead><tbody class="divide-y divide-slate-100 bg-white" data-v-52dd9b0b${_scopeId}><!--[-->`);
             ssrRenderList(__props.accounts, (account) => {
-              _push2(`<tr class="hover:bg-slate-50" data-v-07bb7661${_scopeId}><td class="px-4 py-3" data-v-07bb7661${_scopeId}><input type="checkbox"${ssrIncludeBooleanAttr(selected.value.includes(account.id)) ? " checked" : ""} data-v-07bb7661${_scopeId}></td><td class="px-4 py-3" data-v-07bb7661${_scopeId}><p class="font-semibold text-slate-900" data-v-07bb7661${_scopeId}>${ssrInterpolate(account.first_name)} ${ssrInterpolate(account.last_name)}</p><p class="text-xs text-slate-500" data-v-07bb7661${_scopeId}>${ssrInterpolate(account.preferred_name)}</p></td><td class="px-4 py-3 text-lg font-semibold text-emerald-600" data-v-07bb7661${_scopeId}>${ssrInterpolate(account.token_account?.balance ?? 0)}</td><td class="px-4 py-3 text-right" data-v-07bb7661${_scopeId}><div class="space-x-2" data-v-07bb7661${_scopeId}><button class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white" data-v-07bb7661${_scopeId}>+1</button><button class="rounded-full bg-emerald-700 px-3 py-1 text-xs font-semibold text-white" data-v-07bb7661${_scopeId}>+5</button><button class="rounded-full bg-rose-500 px-3 py-1 text-xs font-semibold text-white" data-v-07bb7661${_scopeId}>-5</button></div></td></tr>`);
+              _push2(`<tr class="hover:bg-slate-50" data-v-52dd9b0b${_scopeId}><td class="px-4 py-3" data-v-52dd9b0b${_scopeId}><input type="checkbox"${ssrIncludeBooleanAttr(selected.value.includes(account.id)) ? " checked" : ""} data-v-52dd9b0b${_scopeId}></td><td class="px-4 py-3" data-v-52dd9b0b${_scopeId}><p class="font-semibold text-slate-900" data-v-52dd9b0b${_scopeId}>${ssrInterpolate(account.first_name)} ${ssrInterpolate(account.last_name)}</p><p class="text-xs text-slate-500" data-v-52dd9b0b${_scopeId}>${ssrInterpolate(account.preferred_name)}</p></td><td class="px-4 py-3 text-lg font-semibold text-emerald-600" data-v-52dd9b0b${_scopeId}><button class="hover:text-emerald-700" data-v-52dd9b0b${_scopeId}>${ssrInterpolate(account.token_account?.balance ?? 0)}</button></td><td class="px-4 py-3 text-right" data-v-52dd9b0b${_scopeId}><div class="space-x-2" data-v-52dd9b0b${_scopeId}><button class="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white" data-v-52dd9b0b${_scopeId}>+1</button><button class="rounded-full bg-emerald-700 px-3 py-1 text-xs font-semibold text-white" data-v-52dd9b0b${_scopeId}>+5</button><button class="rounded-full bg-rose-400 px-3 py-1 text-xs font-semibold text-white" data-v-52dd9b0b${_scopeId}>-1</button><button class="rounded-full bg-rose-600 px-3 py-1 text-xs font-semibold text-white" data-v-52dd9b0b${_scopeId}>-5</button></div></td></tr>`);
             });
-            _push2(`<!--]--></tbody></table></div></section><section class="panel flex flex-col gap-6 p-6" data-v-07bb7661${_scopeId}><div data-v-07bb7661${_scopeId}><p class="text-sm font-semibold text-slate-900" data-v-07bb7661${_scopeId}>Recent activity</p><ul class="mt-4 space-y-3 text-sm" data-v-07bb7661${_scopeId}><!--[-->`);
+            _push2(`<!--]--></tbody></table></div></section><section class="panel flex flex-col gap-6 p-6" data-v-52dd9b0b${_scopeId}><div data-v-52dd9b0b${_scopeId}><p class="text-sm font-semibold text-slate-900" data-v-52dd9b0b${_scopeId}>Recent activity</p><ul class="mt-4 space-y-3 text-sm" data-v-52dd9b0b${_scopeId}><!--[-->`);
             ssrRenderList(__props.recentTransactions, (transaction) => {
-              _push2(`<li class="flex items-center justify-between rounded-2xl border border-slate-100 px-3 py-2" data-v-07bb7661${_scopeId}><div data-v-07bb7661${_scopeId}><p class="font-semibold text-slate-900" data-v-07bb7661${_scopeId}>${ssrInterpolate(transaction.young_person.first_name)}</p><p class="text-xs text-slate-500" data-v-07bb7661${_scopeId}>${ssrInterpolate(transaction.reason ?? transaction.type)}</p></div><span class="${ssrRenderClass([transaction.amount > 0 ? "text-emerald-600" : "text-rose-500", "font-semibold"])}" data-v-07bb7661${_scopeId}>${ssrInterpolate(transaction.amount > 0 ? "+" : "")}${ssrInterpolate(transaction.amount)}</span></li>`);
+              _push2(`<li class="flex items-center justify-between rounded-2xl border border-slate-100 px-3 py-2" data-v-52dd9b0b${_scopeId}><div data-v-52dd9b0b${_scopeId}><p class="font-semibold text-slate-900" data-v-52dd9b0b${_scopeId}>${ssrInterpolate(transaction.young_person.first_name)}</p><p class="text-xs text-slate-500" data-v-52dd9b0b${_scopeId}>${ssrInterpolate(transaction.reason ?? transaction.type)}</p></div><span class="${ssrRenderClass([transaction.amount > 0 ? "text-emerald-600" : "text-rose-500", "font-semibold"])}" data-v-52dd9b0b${_scopeId}>${ssrInterpolate(transaction.amount > 0 ? "+" : "")}${ssrInterpolate(transaction.amount)}</span></li>`);
             });
             _push2(`<!--]-->`);
             if (!__props.recentTransactions.length) {
-              _push2(`<li class="text-sm text-slate-500" data-v-07bb7661${_scopeId}>No token movements yet.</li>`);
+              _push2(`<li class="text-sm text-slate-500" data-v-52dd9b0b${_scopeId}>No token movements yet.</li>`);
             } else {
               _push2(`<!---->`);
             }
-            _push2(`</ul></div><div data-v-07bb7661${_scopeId}><p class="text-sm font-semibold text-slate-900" data-v-07bb7661${_scopeId}>Reason</p><input${ssrRenderAttr("value", unref(form).reason)} class="form-input mt-2" placeholder="eg. Worship team" data-v-07bb7661${_scopeId}></div><div class="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-600" data-v-07bb7661${_scopeId}><p class="font-semibold text-slate-900" data-v-07bb7661${_scopeId}>Tips</p><ul class="mt-2 list-disc space-y-1 pl-5" data-v-07bb7661${_scopeId}><li data-v-07bb7661${_scopeId}>Select multiple youth for group rewards.</li><li data-v-07bb7661${_scopeId}>Use negative values to redeem in the shop.</li><li data-v-07bb7661${_scopeId}>Tie reasons to events for better reporting.</li></ul></div></section></div>`);
+            _push2(`</ul></div><div data-v-52dd9b0b${_scopeId}><p class="text-sm font-semibold text-slate-900" data-v-52dd9b0b${_scopeId}>Reason</p><input${ssrRenderAttr("value", unref(form).reason)} class="form-input mt-2" placeholder="eg. Worship team" data-v-52dd9b0b${_scopeId}></div><div class="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-600" data-v-52dd9b0b${_scopeId}><p class="font-semibold text-slate-900" data-v-52dd9b0b${_scopeId}>Tips</p><ul class="mt-2 list-disc space-y-1 pl-5" data-v-52dd9b0b${_scopeId}><li data-v-52dd9b0b${_scopeId}>Select multiple youth for group rewards.</li><li data-v-52dd9b0b${_scopeId}>Use negative values to redeem in the shop.</li><li data-v-52dd9b0b${_scopeId}>Tie reasons to events for better reporting.</li></ul></div></section></div>`);
           } else {
             return [
               createVNode(unref(Head), { title: "Tokens" }),
@@ -82,7 +104,11 @@ const _sfc_main = {
                         onClick: ($event) => adjust(5)
                       }, "+5 selected", 8, ["onClick"]),
                       createVNode("button", {
-                        class: "rounded-full bg-rose-500 px-3 py-1 font-semibold text-white",
+                        class: "rounded-full bg-rose-400 px-3 py-1 font-semibold text-white",
+                        onClick: ($event) => adjust(-1)
+                      }, "-1 selected", 8, ["onClick"]),
+                      createVNode("button", {
+                        class: "rounded-full bg-rose-600 px-3 py-1 font-semibold text-white",
                         onClick: ($event) => adjust(-5)
                       }, "-5 selected", 8, ["onClick"])
                     ])
@@ -114,7 +140,12 @@ const _sfc_main = {
                               createVNode("p", { class: "font-semibold text-slate-900" }, toDisplayString(account.first_name) + " " + toDisplayString(account.last_name), 1),
                               createVNode("p", { class: "text-xs text-slate-500" }, toDisplayString(account.preferred_name), 1)
                             ]),
-                            createVNode("td", { class: "px-4 py-3 text-lg font-semibold text-emerald-600" }, toDisplayString(account.token_account?.balance ?? 0), 1),
+                            createVNode("td", { class: "px-4 py-3 text-lg font-semibold text-emerald-600" }, [
+                              createVNode("button", {
+                                class: "hover:text-emerald-700",
+                                onClick: ($event) => editBalance(account)
+                              }, toDisplayString(account.token_account?.balance ?? 0), 9, ["onClick"])
+                            ]),
                             createVNode("td", { class: "px-4 py-3 text-right" }, [
                               createVNode("div", { class: "space-x-2" }, [
                                 createVNode("button", {
@@ -126,7 +157,11 @@ const _sfc_main = {
                                   onClick: ($event) => adjust(5, account.id)
                                 }, "+5", 8, ["onClick"]),
                                 createVNode("button", {
-                                  class: "rounded-full bg-rose-500 px-3 py-1 text-xs font-semibold text-white",
+                                  class: "rounded-full bg-rose-400 px-3 py-1 text-xs font-semibold text-white",
+                                  onClick: ($event) => adjust(-1, account.id)
+                                }, "-1", 8, ["onClick"]),
+                                createVNode("button", {
+                                  class: "rounded-full bg-rose-600 px-3 py-1 text-xs font-semibold text-white",
                                   onClick: ($event) => adjust(-5, account.id)
                                 }, "-5", 8, ["onClick"])
                               ])
@@ -195,7 +230,7 @@ _sfc_main.setup = (props, ctx) => {
   (ssrContext.modules || (ssrContext.modules = /* @__PURE__ */ new Set())).add("resources/js/Pages/Admin/Tokens/Index.vue");
   return _sfc_setup ? _sfc_setup(props, ctx) : void 0;
 };
-const Index = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-07bb7661"]]);
+const Index = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-52dd9b0b"]]);
 export {
   Index as default
 };
