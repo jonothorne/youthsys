@@ -61,8 +61,8 @@ const quickLinks = [
             class="hidden w-72 flex-shrink-0 border-r border-slate-800/70 bg-slate-900 px-5 py-8 shadow-xl shadow-black/30 lg:flex lg:flex-col"
         >
             <div class="flex items-center justify-center">
-                <Link :href="route('dashboard')" class="text-2xl font-bold text-white">
-                    Alive Youth
+                <Link :href="route('dashboard')">
+                    <img src="/build/assets/logo.png" alt="Alive Youth" class="w-auto" />
                 </Link>
             </div>
 
@@ -177,8 +177,8 @@ const quickLinks = [
             <div class="absolute left-0 top-0 h-full w-72 bg-slate-900 p-6 shadow-2xl" @click.stop>
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
-                        <Link :href="route('dashboard')" class="text-xl font-bold text-white">
-                            Alive Youth
+                        <Link :href="route('dashboard')">
+                            <img src="/build/assets/logo.png" alt="Alive Youth" class="h-10 w-auto" />
                         </Link>
                     </div>
                     <button class="rounded-full border border-white/20 p-2 text-white" @click="showMobileNav = false">
