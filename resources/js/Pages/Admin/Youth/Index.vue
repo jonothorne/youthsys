@@ -33,6 +33,15 @@ const submit = () => {
         },
     });
 };
+
+const remove = (id) => {
+    if (!confirm('Are you sure you want to delete this young person?')) {
+        return;
+    }
+    router.delete(route('admin.youth.destroy', id), {
+        preserveScroll: true,
+    });
+};
 </script>
 
 <template>
@@ -93,7 +102,12 @@ const submit = () => {
                                     <p v-for="guardian in person.guardians" :key="guardian.id">{{ guardian.first_name }} {{ guardian.last_name }}</p>
                                 </td>
                                 <td class="px-4 py-4 text-right">
-                                    <Link :href="route('admin.youth.show', person.id)" class="text-sm font-semibold text-indigo-600">Open</Link>
+                                    <div class="flex items-center justify-end gap-3">
+                                        <Link :href="route('admin.youth.show', person.id)" class="text-sm font-semibold text-indigo-600">Open</Link>
+                                        <button class="text-sm font-semibold text-rose-500 hover:text-rose-600" @click="remove(person.id)">
+                                            Delete
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>

@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import * as Icons from 'lucide-vue-next';
 
 const props = defineProps({
@@ -20,6 +20,13 @@ const form = useForm({
 const submit = () => {
     form.put(route('admin.youth.update', props.youth.id));
 };
+
+const remove = () => {
+    if (!confirm('Are you sure you want to delete this young person?')) {
+        return;
+    }
+    router.delete(route('admin.youth.destroy', props.youth.id));
+};
 </script>
 
 <template>
@@ -32,9 +39,14 @@ const submit = () => {
                     <h1 class="text-2xl font-semibold text-slate-900">{{ props.youth.first_name }} {{ props.youth.last_name }}</h1>
                     <p class="text-sm text-slate-500">Preferred name: {{ props.youth.preferred_name || '—' }}</p>
                 </div>
-                <Link :href="route('admin.youth.index')" class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600">
-                    ← Back to directory
-                </Link>
+                <div class="flex flex-wrap gap-3">
+                    <button class="rounded-2xl border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-600" @click="remove">
+                        Delete
+                    </button>
+                    <Link :href="route('admin.youth.index')" class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600">
+                        ← Back to directory
+                    </Link>
+                </div>
             </div>
 
             <section class="grid gap-6 lg:grid-cols-3">
