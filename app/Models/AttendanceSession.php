@@ -20,6 +20,7 @@ class AttendanceSession extends Model
         'is_locked',
         'created_by',
         'notes',
+        'archived',
     ];
 
     protected $casts = [
@@ -27,6 +28,7 @@ class AttendanceSession extends Model
         'opens_at' => 'datetime',
         'closes_at' => 'datetime',
         'is_locked' => 'boolean',
+        'archived' => 'boolean',
     ];
 
     public function records()

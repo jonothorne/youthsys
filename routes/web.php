@@ -36,6 +36,9 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('attendance', [AttendanceController::class, 'store'])->name('attendance.store');
     Route::get('attendance/{attendanceSession}', [AttendanceController::class, 'show'])->name('attendance.show');
     Route::patch('attendance/{attendanceSession}/records', [AttendanceController::class, 'updateRecords'])->name('attendance.records.update');
+    Route::post('attendance/{attendanceSession}/archive', [AttendanceController::class, 'archive'])->name('attendance.archive');
+    Route::post('attendance/{attendanceSession}/restore', [AttendanceController::class, 'restore'])->name('attendance.restore');
+    Route::delete('attendance/{attendanceSession}', [AttendanceController::class, 'destroy'])->name('attendance.destroy');
 
     Route::get('tokens', [TokenController::class, 'index'])->name('tokens.index');
     Route::post('tokens/adjust', [TokenController::class, 'adjust'])->name('tokens.adjust');

@@ -18,12 +18,23 @@ class AttendanceController extends Controller
     {
         abort_unless(auth()->user()->can('manage attendance'), 403);
 
-        $sessions = AttendanceSession::withCount(['records as present_count' => function ($query) {
+        $activeSessions = AttendanceSession::withCount(['records as present_count' => function ($query) {
             $query->where('status', 'present');
-        }])->latest('session_date')->paginate(10);
+        }])
+            ->where('archived', false)
+            ->latest('session_date')
+            ->get();
+
+        $archivedSessions = AttendanceSession::withCount(['records as present_count' => function ($query) {
+            $query->where('status', 'present');
+        }])
+            ->where('archived', true)
+            ->latest('session_date')
+            ->get();
 
         return Inertia::render('Admin/Attendance/Index', [
-            'sessions' => $sessions,
+            'sessions' => $activeSessions,
+            'archivedSessions' => $archivedSessions,
         ]);
     }
 
@@ -76,6 +87,34 @@ class AttendanceController extends Controller
         });
 
         return back()->with('success', 'Attendance updated');
+    }
+
+    public function archive(AttendanceSession $attendanceSession)
+    {
+        abort_unless(auth()->user()->can('manage attendance'), 403);
+
+        $attendanceSession->update(['archived' => true]);
+
+        return back()->with('success', 'Session archived');
+    }
+
+    public function restore(AttendanceSession $attendanceSession)
+    {
+        abort_unless(auth()->user()->can('manage attendance'), 403);
+
+        $attendanceSession->update(['archived' => false]);
+
+        return back()->with('success', 'Session restored');
+    }
+
+    public function destroy(AttendanceSession $attendanceSession)
+    {
+        abort_unless(auth()->user()->can('manage attendance'), 403);
+
+        $attendanceSession->records()->delete();
+        $attendanceSession->delete();
+
+        return redirect()->route('admin.attendance.index')->with('success', 'Session deleted');
     }
 
     protected function seedRecords(AttendanceSession $session): void
