@@ -62,7 +62,7 @@ const quickLinks = [
         >
             <div class="flex items-center justify-center">
                 <Link :href="route('dashboard')">
-                    <img src="/build/assets/logo.png" alt="Alive Youth" class="w-auto" />
+                    <img src="/images/logo.png" alt="Alive Youth" class="w-auto" />
                 </Link>
             </div>
 
@@ -178,7 +178,7 @@ const quickLinks = [
                 <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <Link :href="route('dashboard')">
-                            <img src="/build/assets/logo.png" alt="Alive Youth" class="h-10 w-auto" />
+                            <img src="/images/logo.png" alt="Alive Youth" class="h-10 w-auto" />
                         </Link>
                     </div>
                     <button class="rounded-full border border-white/20 p-2 text-white" @click="showMobileNav = false">
