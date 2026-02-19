@@ -48,8 +48,6 @@ const medicalDetails = computed(() => [
     { label: 'Medications', value: props.youth.medications || 'No medications recorded.' },
     { label: 'Medical notes', value: props.youth.medical_notes || 'No additional notes.' },
     { label: 'Dietary requirements', value: props.youth.dietary_requirements || 'None provided.' },
-    { label: 'Doctor name', value: props.youth.doctor_name || '—' },
-    { label: 'Doctor phone', value: props.youth.doctor_phone || '—' },
 ]);
 </script>
 

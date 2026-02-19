@@ -23,8 +23,6 @@ class YoungPerson extends Model
         'medical_notes',
         'medications',
         'dietary_requirements',
-        'doctor_name',
-        'doctor_phone',
         'photo_consent',
         'active',
         'status',
