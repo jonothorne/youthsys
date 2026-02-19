@@ -1,5 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { computed } from 'vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import * as Icons from 'lucide-vue-next';
 
@@ -27,6 +28,29 @@ const remove = () => {
     }
     router.delete(route('admin.youth.destroy', props.youth.id));
 };
+
+const formatDate = (value) => (value ? new Date(value).toLocaleDateString() : '—');
+
+const personalDetails = computed(() => [
+    { label: 'Date of birth', value: formatDate(props.youth.date_of_birth) },
+    { label: 'Gender', value: props.youth.gender || '—' },
+    { label: 'Preferred name', value: props.youth.preferred_name || '—' },
+    { label: 'Primary language', value: props.youth.primary_language || '—' },
+]);
+
+const schoolDetails = computed(() => [
+    { label: 'School year', value: props.youth.school_year || '—' },
+    { label: 'School name', value: props.youth.school_name || '—' },
+]);
+
+const medicalDetails = computed(() => [
+    { label: 'Allergies', value: props.youth.allergies || 'No allergies recorded.' },
+    { label: 'Medications', value: props.youth.medications || 'No medications recorded.' },
+    { label: 'Medical notes', value: props.youth.medical_notes || 'No additional notes.' },
+    { label: 'Dietary requirements', value: props.youth.dietary_requirements || 'None provided.' },
+    { label: 'Doctor name', value: props.youth.doctor_name || '—' },
+    { label: 'Doctor phone', value: props.youth.doctor_phone || '—' },
+]);
 </script>
 
 <template>
@@ -104,6 +128,7 @@ const remove = () => {
                             <p class="text-sm font-semibold text-slate-900">{{ guardian.first_name }} {{ guardian.last_name }}</p>
                             <p class="text-xs text-slate-500">{{ guardian.relationship }}</p>
                             <p class="text-sm text-slate-600">{{ guardian.primary_phone }}</p>
+                            <p v-if="guardian.email" class="text-xs text-slate-500">{{ guardian.email }}</p>
                         </div>
                         <p v-if="!youth.guardians.length" class="text-sm text-slate-500">No guardians linked yet.</p>
                     </div>
@@ -111,30 +136,63 @@ const remove = () => {
             </section>
 
             <section class="grid gap-6 lg:grid-cols-3">
-                <div class="panel p-6 lg:col-span-2">
-                    <p class="text-sm font-semibold text-slate-900">Recent attendance</p>
-                    <ul class="mt-4 divide-y divide-slate-100">
-                        <li v-for="record in youth.attendance_records" :key="record.id" class="flex items-center justify-between py-3 text-sm">
-                            <span class="text-slate-600">{{ new Date(record.session.session_date).toLocaleDateString() }}</span>
-                            <span class="text-sm font-semibold text-slate-900">{{ record.status }}</span>
-                        </li>
-                        <li v-if="!youth.attendance_records?.length" class="py-4 text-sm text-slate-500">No attendance yet.</li>
-                    </ul>
-                </div>
-                <div class="panel p-6">
-                    <p class="text-sm font-semibold text-slate-900">Consents</p>
-                    <div class="mt-4 space-y-3">
-                        <div v-for="consent in youth.consents" :key="consent.id" class="rounded-2xl border border-slate-100 p-3 text-sm">
-                            <p class="font-semibold text-slate-900">Signed {{ new Date(consent.signed_at).toLocaleDateString() }}</p>
-                            <div class="mt-2 flex flex-wrap gap-2 text-xs text-slate-600">
-                                <span :class="consent.general_attendance ? 'text-emerald-600' : 'text-rose-500'">Weekly</span>
-                                <span :class="consent.offsite_events ? 'text-emerald-600' : 'text-rose-500'">Offsite</span>
-                                <span :class="consent.media_consent ? 'text-emerald-600' : 'text-rose-500'">Media</span>
+                <div class="panel p-6 lg:col-span-2 space-y-6">
+                    <div>
+                        <p class="text-sm font-semibold text-slate-900">Personal details</p>
+                        <div class="mt-4 grid gap-4 md:grid-cols-2">
+                            <div v-for="detail in personalDetails" :key="detail.label">
+                                <p class="text-xs uppercase tracking-wide text-slate-500">{{ detail.label }}</p>
+                                <p class="text-sm font-semibold text-slate-900">{{ detail.value }}</p>
                             </div>
                         </div>
-                        <p v-if="!youth.consents.length" class="text-sm text-slate-500">Awaiting guardian consent.</p>
                     </div>
-                    <div class="mt-6 rounded-2xl border border-slate-100 bg-slate-50 p-4">
+
+                    <div>
+                        <p class="text-sm font-semibold text-slate-900">School information</p>
+                        <div class="mt-4 grid gap-4 md:grid-cols-2">
+                            <div v-for="detail in schoolDetails" :key="detail.label">
+                                <p class="text-xs uppercase tracking-wide text-slate-500">{{ detail.label }}</p>
+                                <p class="text-sm font-semibold text-slate-900">{{ detail.value }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p class="text-sm font-semibold text-slate-900">Medical & safety</p>
+                        <div class="mt-4 space-y-3">
+                            <div v-for="detail in medicalDetails" :key="detail.label">
+                                <p class="text-xs uppercase tracking-wide text-slate-500">{{ detail.label }}</p>
+                                <p class="text-sm text-slate-700">{{ detail.value }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel p-6 space-y-6">
+                    <div>
+                        <p class="text-sm font-semibold text-slate-900">Recent attendance</p>
+                        <ul class="mt-4 divide-y divide-slate-100">
+                            <li v-for="record in youth.attendance_records" :key="record.id" class="flex items-center justify-between py-3 text-sm">
+                                <span class="text-slate-600">{{ new Date(record.session.session_date).toLocaleDateString() }}</span>
+                                <span class="text-sm font-semibold text-slate-900">{{ record.status }}</span>
+                            </li>
+                            <li v-if="!youth.attendance_records?.length" class="py-4 text-sm text-slate-500">No attendance yet.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-900">Consents</p>
+                        <div class="mt-4 space-y-3">
+                            <div v-for="consent in youth.consents" :key="consent.id" class="rounded-2xl border border-slate-100 p-3 text-sm">
+                                <p class="font-semibold text-slate-900">Signed {{ new Date(consent.signed_at).toLocaleDateString() }}</p>
+                                <div class="mt-2 flex flex-wrap gap-2 text-xs text-slate-600">
+                                    <span :class="consent.general_attendance ? 'text-emerald-600' : 'text-rose-500'">Weekly</span>
+                                    <span :class="consent.offsite_events ? 'text-emerald-600' : 'text-rose-500'">Offsite</span>
+                                    <span :class="consent.media_consent ? 'text-emerald-600' : 'text-rose-500'">Media</span>
+                                </div>
+                            </div>
+                            <p v-if="!youth.consents.length" class="text-sm text-slate-500">Awaiting guardian consent.</p>
+                        </div>
+                    </div>
+                    <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4">
                         <p class="text-xs uppercase tracking-wide text-slate-500">Tokens</p>
                         <p class="text-3xl font-semibold text-slate-900">{{ youth.token_account?.balance ?? 0 }}</p>
                         <Link :href="route('admin.tokens.index')" class="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-indigo-600">
