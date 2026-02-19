@@ -23,10 +23,14 @@ class EnrolmentController extends Controller
         $data = $request->validated();
 
         DB::transaction(function () use ($data) {
-            $guardian = Guardian::create($data['guardian']);
+            $guardianData = $this->sanitizeFields($data['guardian']);
+            $youngPersonData = $this->sanitizeFields($data['young_person']);
+            $consentData = $this->sanitizeFields($data['consents']);
+
+            $guardian = Guardian::create($guardianData);
 
             $youngPerson = YoungPerson::create(array_merge(
-                $data['young_person'],
+                $youngPersonData,
                 [
                     'status' => 'pending',
                     'active' => false,
@@ -40,7 +44,7 @@ class EnrolmentController extends Controller
                 'receives_notifications' => true,
             ]);
 
-            $consentPayload = array_merge($data['consents'], [
+            $consentPayload = array_merge($consentData, [
                 'young_person_id' => $youngPerson->id,
                 'guardian_id' => $guardian->id,
                 'signed_at' => now(),
@@ -56,5 +60,24 @@ class EnrolmentController extends Controller
         });
 
         return redirect()->route('enrolment.thank-you');
+    }
+
+    protected function sanitizeFields(array $fields): array
+    {
+        $placeholders = collect(['na', 'n/a', 'none', 'nil', 'not applicable', 'no']);
+
+        return collect($fields)->map(function ($value) use ($placeholders) {
+            if (!is_string($value)) {
+                return $value;
+            }
+
+            $trimmed = trim($value);
+            if ($trimmed === '') {
+                return null;
+            }
+
+            $normalized = strtolower($trimmed);
+            return $placeholders->contains($normalized) ? null : $value;
+        })->toArray();
     }
 }
