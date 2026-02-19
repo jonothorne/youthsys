@@ -1,8 +1,10 @@
-import { withCtx, unref, createVNode, resolveDynamicComponent, toDisplayString, createTextVNode, openBlock, createBlock, Fragment, renderList, createCommentVNode, useSSRContext } from "vue";
-import { ssrRenderComponent, ssrRenderList, ssrInterpolate, ssrRenderVNode, ssrRenderStyle } from "vue/server-renderer";
+import { computed, withCtx, unref, createVNode, resolveDynamicComponent, toDisplayString, createTextVNode, openBlock, createBlock, Fragment, renderList, createCommentVNode, useSSRContext } from "vue";
+import { ssrRenderComponent, ssrRenderList, ssrInterpolate, ssrRenderVNode } from "vue/server-renderer";
 import { _ as _sfc_main$1 } from "./AuthenticatedLayout-7_VVwp8m.js";
 import { Head, Link } from "@inertiajs/vue3";
 import * as Icons from "lucide-vue-next";
+import { Line } from "vue-chartjs";
+import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler } from "chart.js";
 import "clsx";
 import "axios";
 import "./_plugin-vue_export-helper-1tPrXgE0.js";
@@ -11,10 +13,11 @@ const _sfc_main = {
   __ssrInlineRender: true,
   props: {
     stats: Object,
-    attendanceRecent: Array,
+    attendanceTrend: { type: Array, default: () => [] },
     ageBuckets: Object
   },
   setup(__props) {
+    Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
     const props = __props;
     const metricCards = [
       { key: "active_youth", label: "Active youth", icon: "Users" },
@@ -27,6 +30,72 @@ const _sfc_main = {
       { label: "Invite leader", description: "Add a new admin/token operator", route: "admin.users.index" },
       { label: "Send parent form", description: "Share registration link", route: "enrolment.form", external: true }
     ];
+    const formatWeekLabel = (dateString) => {
+      const date = new Date(dateString);
+      return date.toLocaleDateString(void 0, { month: "short", day: "numeric" });
+    };
+    const gradientFill = (context) => {
+      const chart = context.chart;
+      const fallback = "rgba(37, 99, 235, 0.15)";
+      if (!chart) {
+        return fallback;
+      }
+      const { ctx, chartArea } = chart;
+      if (!chartArea) {
+        return fallback;
+      }
+      const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+      gradient.addColorStop(0, "rgba(37, 99, 235, 0.35)");
+      gradient.addColorStop(1, "rgba(37, 99, 235, 0)");
+      return gradient;
+    };
+    const chartData = computed(() => ({
+      labels: props.attendanceTrend.map((week) => formatWeekLabel(week.week_start)),
+      datasets: [
+        {
+          label: "Weekly attendance",
+          data: props.attendanceTrend.map((week) => week.present_count ?? 0),
+          borderColor: "#2563eb",
+          backgroundColor: gradientFill,
+          borderWidth: 2,
+          tension: 0.45,
+          pointRadius: 0,
+          fill: "start"
+        }
+      ]
+    }));
+    const chartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { intersect: false, mode: "index" },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: (items) => {
+              const item = items?.[0];
+              if (!item) {
+                return "";
+              }
+              const week = props.attendanceTrend[item.dataIndex];
+              return week ? `Week of ${formatWeekLabel(week.week_start)}` : item.label;
+            },
+            label: (context) => `${context.parsed.y ?? 0} present`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { maxTicksLimit: 6 }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 5 },
+          grid: { color: "rgba(15, 23, 42, 0.05)" }
+        }
+      }
+    };
     return (_ctx, _push, _parent, _attrs) => {
       _push(ssrRenderComponent(_sfc_main$1, _attrs, {
         default: withCtx((_, _push2, _parent2, _scopeId) => {
@@ -38,15 +107,15 @@ const _sfc_main = {
               ssrRenderVNode(_push2, createVNode(resolveDynamicComponent(Icons[metric.icon]), { class: "h-5 w-5" }, null), _parent2, _scopeId);
               _push2(`</div></div>`);
             });
-            _push2(`<!--]--></section><section class="grid gap-6 lg:grid-cols-3"${_scopeId}><div class="panel p-6 lg:col-span-2"${_scopeId}><div class="flex items-center justify-between"${_scopeId}><div${_scopeId}><p class="text-sm font-semibold text-slate-900"${_scopeId}>Attendance pulse</p><p class="text-xs text-slate-500"${_scopeId}>Past six gatherings</p></div><span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"${_scopeId}>Live</span></div><div class="mt-6 space-y-4"${_scopeId}><!--[-->`);
-            ssrRenderList(__props.attendanceRecent, (session) => {
-              _push2(`<div class="flex items-center gap-4"${_scopeId}><div class="w-24 text-sm text-slate-600"${_scopeId}>${ssrInterpolate(new Date(session.session_date).toLocaleDateString())}</div><div class="flex-1"${_scopeId}><div class="h-3 rounded-full bg-slate-100"${_scopeId}><div class="h-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500" style="${ssrRenderStyle({ width: `${Math.min(session.present_count * 3, 100)}%` })}"${_scopeId}></div></div></div><div class="w-12 text-right text-sm font-semibold text-slate-800"${_scopeId}>${ssrInterpolate(session.present_count)}</div></div>`);
-            });
-            _push2(`<!--]-->`);
-            if (!__props.attendanceRecent?.length) {
-              _push2(`<p class="text-sm text-slate-500"${_scopeId}>No sessions logged yet.</p>`);
+            _push2(`<!--]--></section><section class="grid gap-6 lg:grid-cols-3"${_scopeId}><div class="panel p-6 lg:col-span-2"${_scopeId}><div class="flex items-center justify-between"${_scopeId}><div${_scopeId}><p class="text-sm font-semibold text-slate-900"${_scopeId}>Attendance trend</p><p class="text-xs text-slate-500"${_scopeId}>Weekly presence over time</p></div></div><div class="mt-6"${_scopeId}>`);
+            if (__props.attendanceTrend.length) {
+              _push2(ssrRenderComponent(unref(Line), {
+                data: chartData.value,
+                options: chartOptions,
+                height: "200"
+              }, null, _parent2, _scopeId));
             } else {
-              _push2(`<!---->`);
+              _push2(`<p class="text-sm text-slate-500"${_scopeId}>Log attendance to visualise weekly growth.</p>`);
             }
             _push2(`</div></div><div class="panel p-6"${_scopeId}><p class="text-sm font-semibold text-slate-900"${_scopeId}>Age distribution</p><ul class="mt-6 space-y-4"${_scopeId}><!--[-->`);
             ssrRenderList(__props.ageBuckets, (count, label) => {
@@ -122,33 +191,20 @@ const _sfc_main = {
                   createVNode("div", { class: "panel p-6 lg:col-span-2" }, [
                     createVNode("div", { class: "flex items-center justify-between" }, [
                       createVNode("div", null, [
-                        createVNode("p", { class: "text-sm font-semibold text-slate-900" }, "Attendance pulse"),
-                        createVNode("p", { class: "text-xs text-slate-500" }, "Past six gatherings")
-                      ]),
-                      createVNode("span", { class: "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700" }, "Live")
+                        createVNode("p", { class: "text-sm font-semibold text-slate-900" }, "Attendance trend"),
+                        createVNode("p", { class: "text-xs text-slate-500" }, "Weekly presence over time")
+                      ])
                     ]),
-                    createVNode("div", { class: "mt-6 space-y-4" }, [
-                      (openBlock(true), createBlock(Fragment, null, renderList(__props.attendanceRecent, (session) => {
-                        return openBlock(), createBlock("div", {
-                          key: session.id,
-                          class: "flex items-center gap-4"
-                        }, [
-                          createVNode("div", { class: "w-24 text-sm text-slate-600" }, toDisplayString(new Date(session.session_date).toLocaleDateString()), 1),
-                          createVNode("div", { class: "flex-1" }, [
-                            createVNode("div", { class: "h-3 rounded-full bg-slate-100" }, [
-                              createVNode("div", {
-                                class: "h-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500",
-                                style: { width: `${Math.min(session.present_count * 3, 100)}%` }
-                              }, null, 4)
-                            ])
-                          ]),
-                          createVNode("div", { class: "w-12 text-right text-sm font-semibold text-slate-800" }, toDisplayString(session.present_count), 1)
-                        ]);
-                      }), 128)),
-                      !__props.attendanceRecent?.length ? (openBlock(), createBlock("p", {
+                    createVNode("div", { class: "mt-6" }, [
+                      __props.attendanceTrend.length ? (openBlock(), createBlock(unref(Line), {
                         key: 0,
+                        data: chartData.value,
+                        options: chartOptions,
+                        height: "200"
+                      }, null, 8, ["data"])) : (openBlock(), createBlock("p", {
+                        key: 1,
                         class: "text-sm text-slate-500"
-                      }, "No sessions logged yet.")) : createCommentVNode("", true)
+                      }, "Log attendance to visualise weekly growth."))
                     ])
                   ]),
                   createVNode("div", { class: "panel p-6" }, [

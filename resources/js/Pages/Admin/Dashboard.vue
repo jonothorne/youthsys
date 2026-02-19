@@ -1,11 +1,24 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import * as Icons from 'lucide-vue-next';
+import { Line } from 'vue-chartjs';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Tooltip,
+    Filler,
+} from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
 
 const props = defineProps({
     stats: Object,
-    attendanceRecent: Array,
+    attendanceTrend: { type: Array, default: () => [] },
     ageBuckets: Object,
 });
 
@@ -21,6 +34,81 @@ const quickActions = [
     { label: 'Invite leader', description: 'Add a new admin/token operator', route: 'admin.users.index' },
     { label: 'Send parent form', description: 'Share registration link', route: 'enrolment.form', external: true },
 ];
+
+const formatWeekLabel = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+};
+
+const gradientFill = (context) => {
+    const chart = context.chart;
+    const fallback = 'rgba(37, 99, 235, 0.15)';
+
+    if (!chart) {
+        return fallback;
+    }
+
+    const { ctx, chartArea } = chart;
+
+    if (!chartArea) {
+        return fallback;
+    }
+
+    const gradient = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+    gradient.addColorStop(0, 'rgba(37, 99, 235, 0.35)');
+    gradient.addColorStop(1, 'rgba(37, 99, 235, 0)');
+
+    return gradient;
+};
+
+const chartData = computed(() => ({
+    labels: props.attendanceTrend.map((week) => formatWeekLabel(week.week_start)),
+    datasets: [
+        {
+            label: 'Weekly attendance',
+            data: props.attendanceTrend.map((week) => week.present_count ?? 0),
+            borderColor: '#2563eb',
+            backgroundColor: gradientFill,
+            borderWidth: 2,
+            tension: 0.45,
+            pointRadius: 0,
+            fill: 'start',
+        },
+    ],
+}));
+
+const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { intersect: false, mode: 'index' },
+    plugins: {
+        legend: { display: false },
+        tooltip: {
+            callbacks: {
+                title: (items) => {
+                    const item = items?.[0];
+                    if (!item) {
+                        return '';
+                    }
+                    const week = props.attendanceTrend[item.dataIndex];
+                    return week ? `Week of ${formatWeekLabel(week.week_start)}` : item.label;
+                },
+                label: (context) => `${context.parsed.y ?? 0} present`,
+            },
+        },
+    },
+    scales: {
+        x: {
+            grid: { display: false },
+            ticks: { maxTicksLimit: 6 },
+        },
+        y: {
+            beginAtZero: true,
+            ticks: { stepSize: 5 },
+            grid: { color: 'rgba(15, 23, 42, 0.05)' },
+        },
+    },
+};
 </script>
 
 <template>
@@ -49,25 +137,18 @@ const quickActions = [
                 <div class="panel p-6 lg:col-span-2">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm font-semibold text-slate-900">Attendance pulse</p>
-                            <p class="text-xs text-slate-500">Past six gatherings</p>
+                            <p class="text-sm font-semibold text-slate-900">Attendance trend</p>
+                            <p class="text-xs text-slate-500">Weekly presence over time</p>
                         </div>
-                        <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">Live</span>
                     </div>
-                    <div class="mt-6 space-y-4">
-                        <div v-for="session in attendanceRecent" :key="session.id" class="flex items-center gap-4">
-                            <div class="w-24 text-sm text-slate-600">{{ new Date(session.session_date).toLocaleDateString() }}</div>
-                            <div class="flex-1">
-                                <div class="h-3 rounded-full bg-slate-100">
-                                    <div
-                                        class="h-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                                        :style="{ width: `${Math.min(session.present_count * 3, 100)}%` }"
-                                    ></div>
-                                </div>
-                            </div>
-                            <div class="w-12 text-right text-sm font-semibold text-slate-800">{{ session.present_count }}</div>
-                        </div>
-                        <p v-if="!attendanceRecent?.length" class="text-sm text-slate-500">No sessions logged yet.</p>
+                    <div class="mt-6">
+                        <Line
+                            v-if="attendanceTrend.length"
+                            :data="chartData"
+                            :options="chartOptions"
+                            height="200"
+                        />
+                        <p v-else class="text-sm text-slate-500">Log attendance to visualise weekly growth.</p>
                     </div>
                 </div>
                 <div class="panel p-6">

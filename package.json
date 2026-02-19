@@ -22,11 +22,13 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
+        "chart.js": "^4.5.1",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
         "lucide-vue-next": "^0.564.0",
         "radix-vue": "^1.9.17",
         "tailwind-merge": "^3.4.1",
-        "tailwindcss-animate": "^1.0.7"
+        "tailwindcss-animate": "^1.0.7",
+        "vue-chartjs": "^5.3.3"
     }
 }

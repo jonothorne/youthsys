@@ -62,7 +62,7 @@
 
 @layer components {
     .panel {
-        @apply rounded-3xl border border-border bg-card/95 shadow-lg shadow-slate-900/5;
+        @apply overflow-hidden rounded-3xl border border-border bg-card/95 shadow-lg shadow-slate-900/5;
     }
 
     .toolbar {

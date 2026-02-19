@@ -7,6 +7,7 @@ use App\Models\AttendanceRecord;
 use App\Models\AttendanceSession;
 use App\Models\TokenAccount;
 use App\Models\YoungPerson;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -35,12 +36,24 @@ class DashboardController extends Controller
 
         $attendanceByWeek = AttendanceSession::withCount(['records as present_count' => function ($query) {
             $query->where('status', 'present');
-        }])->latest('session_date')->limit(6)->get(['id', 'session_date'])
-            ->map(fn ($session) => [
-                'id' => $session->id,
-                'session_date' => $session->session_date,
-                'present_count' => $session->present_count,
-            ]);
+        }])
+            ->where('session_date', '>=', now()->subWeeks(12)->startOfWeek())
+            ->orderBy('session_date', 'desc')
+            ->get(['id', 'session_date'])
+            ->groupBy(fn ($session) => Carbon::parse($session->session_date)->startOfWeek()->toDateString())
+            ->map(function ($sessions, $weekStart) {
+                $start = Carbon::parse($weekStart);
+
+                return [
+                    'week_start' => $start->toDateString(),
+                    'week_end' => $start->copy()->endOfWeek()->toDateString(),
+                    'present_count' => $sessions->sum('present_count'),
+                ];
+            })
+            ->sortByDesc('week_start')
+            ->take(10)
+            ->reverse()
+            ->values();
 
         $ageBuckets = YoungPerson::whereNotNull('date_of_birth')
             ->get()
@@ -59,7 +72,7 @@ class DashboardController extends Controller
 
         return Inertia::render('Admin/Dashboard', [
             'stats' => $stats,
-            'attendanceRecent' => $attendanceByWeek,
+            'attendanceTrend' => $attendanceByWeek,
             'ageBuckets' => $ageBuckets,
         ]);
     }
