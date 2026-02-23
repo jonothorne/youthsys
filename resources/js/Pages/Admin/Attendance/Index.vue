@@ -63,7 +63,7 @@ const restore = (id) => {
                                         <p class="text-xs text-slate-500">{{ session.name }}</p>
                                     </td>
                                     <td class="py-3 text-slate-600">{{ session.session_type }}</td>
-                                    <td class="py-3">{{ session.present_count ?? 0 }}</td>
+                                    <td class="py-3">{{ session.present_total ?? session.present_count ?? 0 }}</td>
                                     <td class="py-3 text-right">
                                         <div class="flex flex-wrap justify-end gap-3 text-sm font-semibold">
                                             <Link :href="route('admin.attendance.show', session.id)" class="text-indigo-600">Open</Link>
@@ -132,7 +132,7 @@ const restore = (id) => {
                             <tr v-for="session in archivedSessions" :key="`arch-${session.id}`" class="hover:bg-slate-50">
                                 <td class="py-3">{{ new Date(session.session_date).toLocaleDateString() }}</td>
                                 <td class="py-3 text-slate-600">{{ session.session_type }}</td>
-                                <td class="py-3">{{ session.present_count ?? 0 }}</td>
+                                <td class="py-3">{{ session.present_total ?? session.present_count ?? 0 }}</td>
                                 <td class="py-3 text-right">
                                     <div class="flex flex-wrap justify-end gap-3 text-sm font-semibold">
                                         <Link :href="route('admin.attendance.show', session.id)" class="text-indigo-600">Open</Link>

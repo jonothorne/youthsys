@@ -39,7 +39,7 @@ class DashboardController extends Controller
         }])
             ->where('session_date', '>=', now()->subWeeks(12)->startOfWeek())
             ->orderBy('session_date', 'desc')
-            ->get(['id', 'session_date'])
+            ->get(['id', 'session_date', 'additional_attendees'])
             ->groupBy(fn ($session) => Carbon::parse($session->session_date)->startOfWeek()->toDateString())
             ->map(function ($sessions, $weekStart) {
                 $start = Carbon::parse($weekStart);
@@ -47,7 +47,7 @@ class DashboardController extends Controller
                 return [
                     'week_start' => $start->toDateString(),
                     'week_end' => $start->copy()->endOfWeek()->toDateString(),
-                    'present_count' => $sessions->sum('present_count'),
+                    'present_count' => $sessions->sum('present_count') + $sessions->sum('additional_attendees'),
                 ];
             })
             ->sortByDesc('week_start')

@@ -26,6 +26,7 @@ class UpdateAttendanceRecordRequest extends FormRequest
             'records.*.id' => ['required', 'exists:attendance_records,id'],
             'records.*.status' => ['required', 'in:present,late,absent,excused'],
             'records.*.notes' => ['nullable', 'string'],
+            'additional_attendees' => ['nullable', 'integer', 'min:0', 'max:500'],
         ];
     }
 }

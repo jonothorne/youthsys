@@ -5,7 +5,9 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SearchController;
 use App\Http\Controllers\Admin\TokenController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\YoungPersonConsentController;
 use App\Http\Controllers\Admin\YoungPersonController;
+use App\Http\Controllers\Admin\YoungPersonGuardianController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Public\EnrolmentController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +33,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('youth/{youngPerson}', [YoungPersonController::class, 'show'])->name('youth.show');
     Route::put('youth/{youngPerson}', [YoungPersonController::class, 'update'])->name('youth.update');
     Route::delete('youth/{youngPerson}', [YoungPersonController::class, 'destroy'])->name('youth.destroy');
+    Route::patch('youth/{youngPerson}/guardians/{guardian}', [YoungPersonGuardianController::class, 'update'])->name('youth.guardians.update');
+    Route::post('youth/{youngPerson}/consents', [YoungPersonConsentController::class, 'store'])->name('youth.consents.store');
 
     Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('attendance', [AttendanceController::class, 'store'])->name('attendance.store');

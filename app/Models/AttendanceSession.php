@@ -15,6 +15,7 @@ class AttendanceSession extends Model
         'name',
         'location',
         'expected_count',
+        'additional_attendees',
         'opens_at',
         'closes_at',
         'is_locked',
@@ -29,6 +30,7 @@ class AttendanceSession extends Model
         'closes_at' => 'datetime',
         'is_locked' => 'boolean',
         'archived' => 'boolean',
+        'additional_attendees' => 'integer',
     ];
 
     public function records()

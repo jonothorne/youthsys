@@ -1,6 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import * as Icons from 'lucide-vue-next';
 
 const props = defineProps({
@@ -14,6 +15,7 @@ const form = useForm({
         notes: record.notes ?? '',
         young_person: record.young_person,
     })),
+    additional_attendees: props.session.additional_attendees ?? 0,
 });
 
 const statuses = ['present', 'late', 'absent', 'excused'];
@@ -21,6 +23,9 @@ const statuses = ['present', 'late', 'absent', 'excused'];
 const submit = () => {
     form.patch(route('admin.attendance.records.update', props.session.id));
 };
+
+const presentCount = computed(() => form.records.filter((record) => record.status === 'present').length);
+const totalCount = computed(() => presentCount.value + Number(form.additional_attendees ?? 0));
 </script>
 
 <template>
@@ -47,6 +52,27 @@ const submit = () => {
                     <button class="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white" @click="submit" :disabled="form.processing">
                         Save attendance
                     </button>
+                </div>
+                <div class="flex flex-col gap-3 border-b border-slate-100 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p class="text-sm font-semibold text-slate-900">Additional attendees</p>
+                        <p class="text-xs text-slate-500">Count visitors or guests not on this register</p>
+                    </div>
+                    <div class="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:gap-4">
+                        <div>
+                            <input
+                                v-model.number="form.additional_attendees"
+                                type="number"
+                                min="0"
+                                class="w-32 rounded-2xl border border-slate-200 px-3 py-2 text-sm"
+                            />
+                            <p v-if="form.errors.additional_attendees" class="text-xs text-rose-600">{{ form.errors.additional_attendees }}</p>
+                        </div>
+                        <p class="text-sm text-slate-600">
+                            Total present: <span class="font-semibold text-slate-900">{{ totalCount }}</span>
+                            <span class="text-xs text-slate-400">({{ presentCount }} + extras)</span>
+                        </p>
+                    </div>
                 </div>
                 <div class="divide-y divide-slate-100">
                     <div v-for="record in form.records" :key="record.id" class="flex flex-col gap-4 px-6 py-5 md:flex-row md:items-center md:justify-between">

@@ -33,8 +33,8 @@ class AttendanceController extends Controller
             ->get();
 
         return Inertia::render('Admin/Attendance/Index', [
-            'sessions' => $activeSessions,
-            'archivedSessions' => $archivedSessions,
+            'sessions' => $this->withGuestTotals($activeSessions),
+            'archivedSessions' => $this->withGuestTotals($archivedSessions),
         ]);
     }
 
@@ -77,13 +77,19 @@ class AttendanceController extends Controller
     {
         abort_unless(auth()->user()->can('manage attendance'), 403);
 
-        DB::transaction(function () use ($request) {
-            foreach ($request->validated('records') as $recordPayload) {
+        $data = $request->validated();
+
+        DB::transaction(function () use ($data, $attendanceSession) {
+            foreach ($data['records'] as $recordPayload) {
                 AttendanceRecord::whereKey($recordPayload['id'])->update([
                     'status' => $recordPayload['status'],
                     'notes' => $recordPayload['notes'] ?? null,
                 ]);
             }
+
+            $attendanceSession->update([
+                'additional_attendees' => $data['additional_attendees'] ?? 0,
+            ]);
         });
 
         return back()->with('success', 'Attendance updated');
@@ -129,5 +135,14 @@ class AttendanceController extends Controller
                 'status' => 'absent',
             ]);
         }
+    }
+
+    protected function withGuestTotals($sessions)
+    {
+        return $sessions->map(function ($session) {
+            $session->present_total = ($session->present_count ?? 0) + ($session->additional_attendees ?? 0);
+
+            return $session;
+        });
     }
 }
